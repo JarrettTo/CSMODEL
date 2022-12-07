@@ -28,24 +28,38 @@ class KMeans(object):
     def print_results(self, groups, cluster_num, data):
         print("Number of data points in each cluster:")
         unique_genres = data['top_genre'].unique()
-
+        df= pd.DataFrame(columns = ["Cluster", "Genre","Count"])
+        index=0
         # If cluster_num is specified, print only that cluster
         if cluster_num >= 0 and cluster_num < self.k:
                 print(f"Cluster {cluster_num}:")
+                df['Cluster']= cluster_num
                 cluster = data.loc[groups == cluster_num]
                 for genre in unique_genres:
+                    df['Genre']= genre
+                    df['Count']=cluster.loc[cluster['top_genre'] == genre].shape[0]
+                    
+                    
                     print(f"Genre {genre}:\t", cluster.loc[cluster['top_genre'] == genre].shape[0])
+                return df
         # else, print all clusters (without values = 0)
         elif cluster_num < 0:
             for i in range(self.k):
                 print(f"Cluster {i}:")
+                
                 cluster = data.loc[groups == i]
                 for genre in unique_genres:
+                    
                     if cluster.loc[cluster['top_genre'] == genre].shape[0] > 0:
+                        
+                        df=df.append({'Cluster' : i, 'Genre' : genre, 'Count' : cluster.loc[cluster['top_genre'] == genre].shape[0]}, ignore_index = True)
                         print(f"Genre {genre}:\t", cluster.loc[cluster['top_genre'] == genre].shape[0])
                 print("\n")
+            print(df)
+            return df
         else:
             print("You don't have that many clusters!")
+            return None
 
             
             
@@ -274,4 +288,4 @@ class KMeans(object):
             print('Iteration', i)
 
         print('Done clustering!')
-        return cur_groups
+        return [cur_groups,self.centroids]
